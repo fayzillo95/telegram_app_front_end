@@ -1,18 +1,19 @@
 "use client"
 
+import { sendVerification } from "@/features/auth/api"
 import { useVerificationUrlStore } from "@/store/api.store"
 import { emailStore, useUserStore } from "@/store/user.store"
-import { Button, TextField } from "@mui/material"
-import axios from "axios"
+import { Button, CircularProgress, TextField } from "@mui/material"
 import { useRouter } from "next/navigation"
 import React, { useEffect, useRef, useState } from "react"
 
 function Page() {
 
-    const {email} = emailStore()
-    const {setUser} = useUserStore()
+    const { email } = emailStore()
+    const { setUser } = useUserStore()
     const router = useRouter()
     const { verificationUrl, targetUrlAfterOtp, setTargetUrlAfterOtp } = useVerificationUrlStore()
+    const [isLoading,setIsLoading] = useState<boolean>(false)
 
     const [otp, setOtp] = useState<string[]>(Array(6).fill(""))
     const inputRefs = useRef<(HTMLInputElement | null)[]>([])
@@ -37,21 +38,23 @@ function Page() {
 
     const sendOtp = async () => {
         const code = otp.join("")
-        const apiUrl = `http://localhost:15976${verificationUrl}`
-        const result = await axios.post(apiUrl, {
-            email: email,
-            code: code
-        },{
-            headers : {
-                Authorization : `Bearer ${localStorage.getItem("sessionToken")}`
+        console.log(verificationUrl)
+        if (verificationUrl) {
+            try {
+                setIsLoading(true)
+                const response = await sendVerification({ email: email, code: code }, verificationUrl)
+                const { accessToken, user, routerUrl } = response
+                localStorage.setItem("accessToken", accessToken)
+                localStorage.removeItem("sessionToken")
+                // @ts-ignore
+                Object.keys(user).forEach((key) => setUser(key, user[key]))
+                router.push(routerUrl)
+            } catch (error) {
+                console.log(error)
+            }finally{
+                setIsLoading(false)
             }
-        })
-        console.log(result)
-        const {accessToken,user,routerUrl } = result.data
-        localStorage.setItem("accessToken",accessToken)
-        // @ts-ignore
-        Object.keys(user).forEach((key) => setUser(key,user[key]))
-        router.push(routerUrl)
+        }
     }
 
     useEffect(() => {
@@ -84,6 +87,9 @@ function Page() {
                 <Button onClick={() => {
                     router.push("/sign")
                 }}>CHange email</Button>
+            </div>
+            <div className={`inset-0 absolute ${isLoading ? " flex justify-center items-center h-screen w-full" : "hidden"}`}>
+                <CircularProgress size={500}></CircularProgress>
             </div>
         </div>
     )

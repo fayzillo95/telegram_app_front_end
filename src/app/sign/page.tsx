@@ -1,35 +1,44 @@
 "use client"
 
 import { useVerificationUrlStore } from '@/store/api.store'
-import { Button, TextField } from '@mui/material'
+import { Button, CircularProgress, TextField } from '@mui/material'
 import { useState } from 'react'
-import axios from 'axios'
 import { useRouter } from 'next/navigation'
 import { emailStore } from '@/store/user.store'
 
 function Sign() {
 
-    const {email,setEmail} = emailStore()
+    const { email, setEmail } = emailStore()
     const { verificationUrl, setVerifyUrl } = useVerificationUrlStore()
     const router = useRouter()
+    const [isLoad,setIslOad] = useState<boolean>(false)
 
-    const handleSubmit = async () => {
-        const result = await axios.post("http://localhost:15976/api/auth/send-otp", {
-            email: email
+    const handleSubmit = () => {
+        setIslOad(true)
+        sendEmail({ email: email }).then(result => {
+            console.log(result)
+            if (result.sessionToken) {
+                localStorage.setItem("sessionToken", result.sessionToken)
+            } else {
+                localStorage.removeItem("sessionToken")
+            }
+            const { verificationUrl } = result
+            console.log(result)
+            setVerifyUrl(verificationUrl)
+            router.push("/otp")
+        }).catch(error => {
+            console.log(error)
+            alert(error.message || "Kutilmagan xatolik !")
+        }).finally(() => {
+            setIslOad(false)
         })
-        console.log(result)
-        const { verificationUrl} = result.data
-        if(result.data.sessionToken){
-            localStorage.setItem("sessionToken",result.data.sessionToken)
-        }else{
-            localStorage.removeItem("sessionToken")
-        }
-        setVerifyUrl(verificationUrl)
-        router.push("/otp")
     }
 
+    if(isLoad){
+
+    }
     return (
-        <div className='container mx-auto flex flex-col justify-center items-center min-h-screen'>
+        <div className='container mx-auto flex flex-col justify-center items-center min-h-screen' >
             <div className='w-[400px] space-y-5 flex flex-col items-center shadow-2xl p-6'>
                 <h1 className='text-2xl font-extrabold'>Sign</h1>
                 <div className='w-full'>
@@ -40,12 +49,17 @@ function Sign() {
                         fullWidth
                         key={"email"}
                         value={email}
-                        onChange={(e) => setEmail(e.target.value)}
+                        onChange={(e) => {
+                            !isLoad ? setEmail(e.target.value) : console.log(e.target.value)
+                        }}
                         type='email'
                     >
                     </TextField>
                 </div>
-                <Button variant='contained' fullWidth onClick={() => handleSubmit()}>Submit</Button>
+                <Button variant='contained' fullWidth onClick={() => handleSubmit()} disabled={isLoad}>Submit</Button>
+            </div>
+            <div className={ isLoad ?  "inset-0 bg-[rgba(1,1,1,0.5)] absolute flex justify-center items-center" : "hidden"}>
+                <CircularProgress size={500}></CircularProgress>
             </div>
         </div>
     )

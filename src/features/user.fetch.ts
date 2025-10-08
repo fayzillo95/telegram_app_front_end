@@ -6,7 +6,8 @@ export const getUsers = (setUser: Function) => {
             "Authorization": `Bearer ${localStorage.getItem("accessToken")}`
         }
     }).then(result => {
-        const usersData = result.data.users.map((user: Record<string, any>) => {
+        console.log(result)
+        const usersData = result.data.data.map((user: Record<string, any>) => {
             return {
                 userId: user.userId,
                 firstName: user.firstName,

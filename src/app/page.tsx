@@ -1,4 +1,4 @@
-"use client"
+"use client";
 
 import Center from "@/components/center";
 import Left from "@/components/left";
@@ -7,86 +7,45 @@ import { useSocketStore } from "@/service/socket.io";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useUserStore } from "@/store/user.store";
-import { MessageType } from "@/features/props.types/center.types";
-import { getMyUser } from "@/features/users/api";
 import { CircularProgress } from "@mui/material";
+import { Profile, Users,Messages } from "@/features";
 
 export default function Home() {
-  const socketStore = useSocketStore()
-  const router = useRouter()
+  const socketStore = useSocketStore();
+  const router = useRouter();
 
-  const { user, setUser, resetUser } = useUserStore()
-  const [isOpenRightPanel, setIsOpenRightPane] = useState(false)
-  const [isOpenLeftPanel, setIsOpenLeftPane] = useState(false)
-  const [selectedChat, setSlectedChat] = useState<Record<string, any> | null>(null)
-  const [messages, setMessages] = useState<any[]>([])
-  const [loading, setLoading] = useState(true)   // ✅ loading state
+  const { user, setUser, resetUser } = useUserStore();
+  const [isOpenRightPanel, setIsOpenRightPane] = useState(false);
+  const [isOpenLeftPanel, setIsOpenLeftPanel] = useState(false);
+  const [selectedChat, setSlectedChat] = useState<Record<string, any> | null>(null);
+  const [messages, setMessages] = useState<any[]>([]);
 
-  const assOPenRight = () => setIsOpenRightPane(prev => !prev)
-  const assOPenLeft = () => setIsOpenLeftPane(prev => !prev)
-  const assinMessages = (data: any) => setMessages(data)
-  const getProfile = async () => {
-    try {
-      const res = await getMyUser()
-      console.log(res)
-      if (!res?.profileId) {
-        router.push("/create/profile")
-      } else {
-        setUser(res)
-      }
-    } catch (err) {
-      resetUser()
-      router.push("/sign")
-    } finally {
-      setLoading(false)  // ✅ har holda loading tugaydi
-    }
-  }
+  // ✅ React Query hooks — komponent darajasida
+  const { data: myUser, isLoading: loadingUser } = Users.useMyUser();
+  const { data: allUsers, isLoading: loadingUsers } = Users.useAllUsers();
+  const {data : Profil} = Profile.useOneProfile("f9b2a7a8-eae2-4d46-a0f1-8c6d5b43b250")
+  const assOPenRight = () => setIsOpenRightPane(prev => !prev);
+  const assOPenLeft = () => setIsOpenLeftPanel(prev => !prev);
+  const assinMessages = (data: any) => setMessages(data);
 
   useEffect(() => {
-    const token = localStorage.getItem("accessToken")
-    if (!token) {
-      router.push("/sign")
-      return
-    } else {
-      getProfile()
+    Messages.getMessage("7e0d1fc5-073c-4808-87d3-46187d7abeac","group").then(res => console.log(res)).catch(err => console.log(err))
+    if (myUser) {
+      setUser(myUser.data);
+      // console.log("My user:", myUser.data);
     }
-  }, [socketStore.connect, socketStore.disconnect, router])
+  }, [myUser, setUser]);
 
-  if (loading) {
+  if (loadingUser || loadingUsers) {
     return (
       <div className="flex items-center justify-center w-full h-screen">
         <CircularProgress />
       </div>
-    )
+    );
   }
 
   return (
     <div className="font-sans min-w-screen min-h-screen flex box-border">
-      <div className="flex !w-[500px] shadow-2xl box-border">
-        <Left props={{ 
-          setOpen: assOPenLeft, 
-          isOpenMenu: isOpenLeftPanel,
-          socketStore: socketStore, 
-          selectedChat: selectedChat, 
-          messages: messages,
-          setSlectedChat: setSlectedChat,
-          setMessages: setMessages 
-        }} />
-      </div>
-      <div className="flex w-full">
-        <Center props={{ 
-          setOpen: assOPenRight,
-          socketStore: socketStore, 
-          selectedChat: selectedChat, 
-          messages: messages,
-          setMessages : assinMessages 
-        }} />
-      </div>
-      {isOpenRightPanel && (
-        <div className="w-1/5 border-l-2 min-h-screen bg-amber-300">
-          <Right props={{ socketStore: socketStore }} />
-        </div>
-      )}
     </div>
-  )
+  );
 }

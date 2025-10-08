@@ -7,6 +7,7 @@ import axios from "axios"
 import { useUserStore } from "@/store/user.store"
 import { getMyUser } from "@/features/users/api"
 import { useRouter } from "next/navigation"
+import { CircularProgress } from "@mui/material"
 
 type RegisterDataType = {
     username: string
@@ -17,7 +18,7 @@ type RegisterDataType = {
 function Register() {
 
     const router = useRouter()
-
+    const [isLoading,setIsLoading] = useState<boolean>(false)
     const [userData, setUserData] = useState<RegisterDataType>({
         username: "",
         lastName: "",
@@ -35,7 +36,6 @@ function Register() {
         }))
     }
 
-
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
 
@@ -49,20 +49,20 @@ function Register() {
         }
 
         const accessToken = localStorage.getItem("accessToken")
-
-        await axios.post("http://localhost:15976/api/profile/create", formData, {
+        setIsLoading(true)
+        console.log(accessToken)
+        await axios.post("http://127.0.0.1:15976/api/profile/create", formData, {
             headers: {
                 Authorization: `Bearer ${accessToken}`,
                 "Content-Type": "multipart/form-data"
             }
         }).then(async (result) => {
             console.log(result)
-            const {user : {username},userId } = result.data
             const res = await getMyUser()
             setUser(res)
             router.push("/")
         }
-        ).catch(err => console.log(err))
+        ).catch(err => console.log(err)).finally(() => setIsLoading(false))
     }
 
 
@@ -76,6 +76,7 @@ function Register() {
             <input
                 type="text"
                 name="username"
+                required
                 placeholder="Username"
                 value={userData.username}
                 onChange={handleChange}
@@ -83,6 +84,7 @@ function Register() {
             />
 
             <input
+                required
                 type="text"
                 name="firstName"
                 placeholder="Ism"
@@ -92,6 +94,7 @@ function Register() {
             />
 
             <input
+                required
                 type="text"
                 name="lastName"
                 placeholder="Familiya"
@@ -102,6 +105,7 @@ function Register() {
 
             <div className="flex w-full gap-2">
                 <input
+                    required
                     type="file"
                     name="avatar"
                     accept="image/*"
@@ -120,6 +124,9 @@ function Register() {
                 >
                     Yuborish
                 </button>
+            </div>
+            <div className={`inset-0 absolute ${isLoading ? " flex justify-center items-center h-screen w-full" : "hidden"}`}>
+                <CircularProgress size={500}></CircularProgress>
             </div>
         </form>
     )

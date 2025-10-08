@@ -4,6 +4,7 @@ import MenuIcon from '@mui/icons-material/Menu';
 import React from 'react'
 
 function LeftFolders({props} : {props : {setOpen : Function}}) {
+    
     return (
         <div className="menu shadow-2xl min-h-screen w-[85px] box-border flex flex-col gap-6 pt-4">
 
