@@ -21,11 +21,6 @@ export const useRegisterVerification = (options?: UseMutationOptions<any, Error,
   });
 
 // 📘 3. Foydalanuvchi mavjudligini tekshirish
-export const useExistsVerification = (options?: UseMutationOptions<any, Error, any>) =>
-  useMutation({
-    mutationFn: (payload: any) => existsApi.existsVerification(payload),
-    ...options,
-  });
 
 // 📘 4. Yordamchi tur (agar tashqarida ishlatilsa)
 export type AuthHookOptions = UseMutationOptions<any, Error, any>;

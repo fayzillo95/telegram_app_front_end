@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient, UseQueryOptions, UseMutationOptions } from '@tanstack/react-query';
-import * as api from '../api/getAllGroups';
+import * as allApi from '../api/getAllGroups';
 import * as createApi from '../api/createGroup';
 import * as oneApi from '../api/getOneGroup';
 
@@ -9,7 +9,7 @@ export const useGroupsByOwner = (
 ) =>
   useQuery({
     queryKey: ['groupes', 'owner'],
-    queryFn: api.getAllGroupsByOwner,
+    queryFn: allApi.getAllGroupsByOwner,
     ...options,
   });
 
@@ -35,8 +35,19 @@ export const useOneGroup = (
   options?: UseQueryOptions<any, Error>
 ) =>
   useQuery({
-    queryKey: ['groupes', id],
+    queryKey: ['group', id],
     queryFn: () => oneApi.getOneGroup(id as string),
     enabled: !!id, // faqat id mavjud bo‘lsa so‘rov yuboriladi
+    ...options,
+  });
+
+
+// === 3. Bitta gruppa ma’lumotini olish ===
+export const useAllGroup = (
+  options?: UseQueryOptions<any, Error>
+) =>
+  useQuery({
+    queryKey: ['allgroupes', "all"],
+    queryFn: () => allApi.getAllGroupes(),
     ...options,
   });

@@ -1,6 +1,5 @@
 "use client"
-
-import { sendVerification } from "@/features/auth/api"
+import {Auth} from "@/features"
 import { useVerificationUrlStore } from "@/store/api.store"
 import { emailStore, useUserStore } from "@/store/user.store"
 import { Button, CircularProgress, TextField } from "@mui/material"
@@ -39,10 +38,10 @@ function Page() {
     const sendOtp = async () => {
         const code = otp.join("")
         console.log(verificationUrl)
-        if (verificationUrl) {
+        if (verificationUrl && email) {
             try {
                 setIsLoading(true)
-                const response = await sendVerification({ email: email, code: code }, verificationUrl)
+                const response = await Auth.sendVerification({ email: email, code: code }, verificationUrl)
                 const { accessToken, user, routerUrl } = response
                 localStorage.setItem("accessToken", accessToken)
                 localStorage.removeItem("sessionToken")

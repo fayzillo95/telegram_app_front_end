@@ -12,7 +12,23 @@ export type User = {
     "publicUrl": null,
     "isBot": false,
     "profileId": "09dc3d5e-4025-4f07-802c-6176b70e2d69"
+    "username" : "fayzill95",
+    lastActivaty : string
 }
+/*
+userId,
+email,
+firstName,
+lastName,
+avatar,
+bio,
+privateUrl,
+publicUrl,
+isBot,
+profileId,
+username,
+lastActivaty
+*/
 
 export type UserStore = {
     user: User | null;

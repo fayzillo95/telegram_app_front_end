@@ -13,5 +13,6 @@ export interface RegisterVerificationDto {
 }
 
 export interface ExistsVerificationDto {
-  phoneOrEmail: string;
+  email: string;
+  code : string
 }

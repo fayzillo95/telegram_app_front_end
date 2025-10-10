@@ -10,5 +10,5 @@ export {
 
 // === Hooks ===
 export {
-useSendUserMessage,useUserMessages
+useSendUserMessage,useAllMessages
 } from './hooks/useMessages';

@@ -19,6 +19,7 @@ export {
   useCreateGroup,
   useGroupsByOwner,
   useOneGroup,
+  useAllGroup
 } from './hooks/useGroups';
 
 export {type Groupe} from "./types"

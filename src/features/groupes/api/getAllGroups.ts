@@ -4,6 +4,6 @@ export const getAllGroupsByOwner = async () => {
   return data;
 };
 export const getAllGroupes = async () => {
-  const { data } = await api.get('/groupes/get-all/groupes');
+  const {data} = await api.get('/groupes/get-all/groupes').then(res => res).catch(err => err);
   return data;
 };

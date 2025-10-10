@@ -5,7 +5,7 @@ import { Button, CircularProgress, TextField } from '@mui/material'
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { emailStore } from '@/store/user.store'
-
+import {Auth} from "@/features"
 function Sign() {
 
     const { email, setEmail } = emailStore()
@@ -14,18 +14,18 @@ function Sign() {
     const [isLoad,setIslOad] = useState<boolean>(false)
 
     const handleSubmit = () => {
+        if(!email) return
         setIslOad(true)
-        sendEmail({ email: email }).then(result => {
-            console.log(result)
+        Auth.sendOtp({email : email }).then(result => {
             if (result.sessionToken) {
                 localStorage.setItem("sessionToken", result.sessionToken)
             } else {
                 localStorage.removeItem("sessionToken")
             }
             const { verificationUrl } = result
-            console.log(result)
             setVerifyUrl(verificationUrl)
-            router.push("/otp")
+            console.log(result)
+            setTimeout(() => router.push("/otp"),5000)
         }).catch(error => {
             console.log(error)
             alert(error.message || "Kutilmagan xatolik !")

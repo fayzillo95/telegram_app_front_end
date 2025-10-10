@@ -1,13 +1,12 @@
 // src/features/auth/index.ts
 
 // === API functions ===
-export { existsVerification } from './api/existsVerification';
+export { sendVerification } from './api/existsVerification';
 export { registerVerification } from './api/registerVerification';
 export { sendOtp } from './api/sendOtp';
 
 // === Hooks ===
 export {
-  useExistsVerification,
   useRegisterVerification,
   useSendOtp,
   type AuthHookOptions,
